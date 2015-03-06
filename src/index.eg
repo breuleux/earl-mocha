@@ -6,7 +6,12 @@ provide:
    after
    beforeEach
    afterEach
-   ;; assert
+   expect
+   expectError
+   assert
+
+require:
+   util -> inspect
 
 
 standard{info, #variable! name, descr, body} =
@@ -35,4 +40,167 @@ beforeEach{`{^body}`} =
 
 afterEach{`{^body}`} =
    standard{this, .afterEach, null, body}
+
+
+
+makeInfo{parts} =
+
+   sanitize{inspect! chain} =
+      @split{"\n"}
+      if{@length > 1, @0 + "...", @0}
+      if{@length > 80, @slice{0, 80}, @}
+
+   len = Math.max{*lens} where lens = parts each {x, _} -> x.length
+   pad{x} =
+      x + [new Array{len + 1 - x.length}.join{" "}]
+
+   xs.join{"\n"} where
+      xs = parts each {x, y} ->
+         S'  {pad! x} : {sanitize! y}'
+
+makeError{name, message, parts} =
+   e = new Error{}
+   e.name = name
+   e.message = message + "\n" + makeInfo{parts}
+   e
+
+ExpectationError{expectation, parts} =
+   makeError{.ExpectationError, msg, parts} where
+      msg = S'`{parts[0][0]}` is not `{expectation.trim{}}`'
+
+ExpectationErrorE{e, expectation, parts} =
+   makeError{.ExpectationError, msg, parts} where
+      msg = match e:
+         null? -> S'`{parts[0][0]}` failed to raise an error (expected: `{expectation.trim{}}`)'
+         else -> S'`{parts[0][0]}` raised the wrong error (got: `{e}` but expected: `{expectation}`)'
+
+AssertionError{parts} =
+   makeError{.AssertionError, msg, parts} where
+      msg = S'Assertion failed: `{parts[0][0]}`'
+
+
+gettext{match} =
+   {=> location} when location -> location.text{}
+   else -> "<unknown>"
+
+decompose{@, expr} =
+   decls = {}
+   body = #multi{}
+   important = {}
+   other = {}
+   seen = new Set{{"<unknown>"}}
+
+   dispatch{node, tmp, match} =
+      do:
+         txt = gettext{node}
+         if seen.has{txt}:
+            return
+         else:
+            seen.add{txt}
+         x = #data{#value{txt}, tmp}
+      true? -> important.push{x}
+      else -> other.push{x}
+
+   mktemp{} =
+      temp = #variable{@gensym{"temp"}}
+      decls.push with `var ^temp = "<not computed>"`
+      temp
+
+   res = helper{expr, 2} where helper{match x, importance, fnpos = false} =
+
+      #variable{_} ->
+         dispatch{x, x, importance > 0 and not fnpos}
+         x
+
+      #send{fn, #array{*args}} ->
+         temp = mktemp{}
+         dispatch{x, temp, importance > 0}
+         body.push with `set ^temp = ^[#send{fn2, #data{*args2}}]` where
+            fn2 = #final{fn} ;;helper{fn, importance - 1, true}
+            args2 = args each arg -> helper{arg, importance - 1}
+         temp
+
+      #send{fn, arg} ->
+         temp = mktemp{}
+         dispatch{x, temp, importance > 0}
+         body.push with `set ^temp = ^[#send{fn2, arg2}]` where
+            fn2 = #final{fn} ;;helper{fn, importance - 1}
+            arg2 = helper{arg, importance - 1}
+         temp
+
+      #value or #array or #object ->
+         #final{x}
+
+      else ->
+         temp = mktemp{}
+         dispatch{x, temp, importance > 0}
+         body.push with `set ^temp = ^[#final{x}]`
+         temp
+
+   {= res, = decls, = body, = important, = other}
+
+
+assert{`{^expr}` or expr} =
+   [@] = this
+   glob = #variable{.___grey_mocha}
+   if @context == #expr{.multi}:
+      return #nostep{@form}
+   {=> res, => decls, => body, => important, => other} =
+      decompose{@, @expand{@context, expr}}
+   ```
+   globals: ___grey_mocha
+   ^*decls
+   match ^body:
+      true? ->
+         undefined
+      else ->
+         throw [^glob].AssertionError{{^*important, ^*other}}
+   ```
+
+expect{`{^pattern, ^expr}`} =
+   [@] = this
+   glob = #variable{.___grey_mocha}
+   if @context == #expr{.multi}:
+      return #nostep{@form}
+   {=> res, => decls, => body, => important, => other} =
+      decompose{@, @expand{@context, expr}}
+   ```
+   globals: ___grey_mocha
+   ^*decls
+   match ^body:
+      ^pattern ->
+         undefined
+      else ->
+         throw [^glob].ExpectationError{^=gettext{pattern}, {^*important, ^*other}}
+   ```
+
+expectError{`{^pattern, ^expr}`} =
+   [@] = this
+   glob = #variable{.___grey_mocha}
+   if @context == #expr{.multi}:
+      return #nostep{@form}
+   {=> res, => decls, => body, => important, => other} =
+      decompose{@, @expand{@context, expr}}
+   ```
+   globals: ___grey_mocha
+   ^*decls
+   try:
+      ^body
+   catch ^pattern:
+      undefined
+   catch e:
+      throw [^glob].ExpectationErrorE{e, ^=gettext{pattern}, {^*important, ^*other}}
+   throw [^glob].ExpectationErrorE{null, ^=gettext{pattern}, {^*important, ^*other}}
+   ```
+
+
+
+globals:
+   ___grey_mocha
+
+global.___grey_mocha = {
+   = AssertionError
+   = ExpectationError
+   = ExpectationErrorE
+}
 
