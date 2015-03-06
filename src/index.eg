@@ -1,0 +1,38 @@
+
+provide:
+   describe
+   it
+   before
+   after
+   beforeEach
+   afterEach
+   ;; assert
+
+
+standard{info, #variable! name, descr, body} =
+   let it = info.mark{`@`}
+   arg = if{descr, {descr}, {}}
+   ```
+   [^name]{^*arg} with asyncx: {} ->
+      let ^it = this
+      ^body
+   ```
+
+describe{`{^descr, ^body}`} =
+   standard{this, .describe, descr, body}
+
+it{`{^descr, ^body}`} =
+   standard{this, .it, descr, body}
+
+before{`{^body}`} =
+   standard{this, .before, null, body}
+
+after{`{^body}`} =
+   standard{this, .after, null, body}
+
+beforeEach{`{^body}`} =
+   standard{this, .beforeEach, null, body}
+
+afterEach{`{^body}`} =
+   standard{this, .afterEach, null, body}
+
