@@ -62,6 +62,7 @@ makeError{name, message, parts} =
    e = new Error{}
    e.name = name
    e.message = message + "\n" + makeInfo{parts}
+   e.stack = e.name + ": " + e.message
    e
 
 ExpectationError{expectation, parts} =
@@ -128,7 +129,7 @@ decompose{@, expr} =
             arg2 = helper{arg, importance - 1}
          temp
 
-      #value or #array or #object ->
+      #value or #array or #object or #void ->
          #final{x}
 
       else ->
@@ -184,13 +185,15 @@ expectError{`{^pattern, ^expr}`} =
    ```
    globals: ___grey_mocha
    ^*decls
+   var ok = false
    try:
       ^body
    catch ^pattern:
-      undefined
+      ok = true
    catch e:
       throw [^glob].ExpectationErrorE{e, ^=gettext{pattern}, {^*important, ^*other}}
-   throw [^glob].ExpectationErrorE{null, ^=gettext{pattern}, {^*important, ^*other}}
+   if not ok:
+      throw [^glob].ExpectationErrorE{null, ^=gettext{pattern}, {^*important, ^*other}}
    ```
 
 
