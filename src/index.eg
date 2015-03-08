@@ -151,7 +151,8 @@ assert{`{^expr}` or expr} =
    ```
    globals: ___grey_mocha
    ^*decls
-   match ^body:
+   ^body
+   match ^res:
       true? ->
          undefined
       else ->
