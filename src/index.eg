@@ -9,6 +9,7 @@ provide:
    expect
    expectError
    assert
+   asserts
 
 require:
    util -> inspect
@@ -139,6 +140,21 @@ decompose{@, expr} =
          temp
 
    {= res, = decls, = body, = important, = other}
+
+
+asserts{`{^name, ^body}` or `{^body}` and name is null} =
+   self = this
+   #multi! #multi{*stmts} = body
+   let {it, describe, assert} = this.mark{`it`, `describe`, `assert`}
+   tests = #multi{*___} with stmts each
+      `^label => ^stmt` ->
+         `[^it] [^label]: ^assert ^stmt`
+      stmt ->
+         `[^it] [^=self.gettext{stmt}]: ^assert ^stmt`
+   if name:
+      `[^describe]{^name, ^tests}`
+   else:
+      tests
 
 
 assert{`{^expr}` or expr} =
