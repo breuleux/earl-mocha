@@ -19,7 +19,7 @@ standard{info, #variable! name, descr, body} =
    let it = info.mark{`@`}
    arg = if{descr, {descr}, {}}
    ```
-   [^name]{^*arg} with asyncx: {} ->
+   [^name]{^*arg} with async: {} ->
       let ^it = this
       ^body
    ```
