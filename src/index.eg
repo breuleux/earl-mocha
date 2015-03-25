@@ -1,7 +1,7 @@
 
 provide:
-   describe
-   it
+   describe, xdescribe
+   it, xit
    before
    after
    beforeEach
@@ -41,6 +41,13 @@ beforeEach{`{^body}`} =
 
 afterEach{`{^body}`} =
    standard{this, .afterEach, null, body}
+
+
+xdescribe{`{^descr, ^body}`} =
+   standard{this, .xdescribe, descr, body}
+
+xit{`{^descr, ^body}`} =
+   standard{this, .xit, descr, body}
 
 
 
