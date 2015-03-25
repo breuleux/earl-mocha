@@ -164,50 +164,42 @@ asserts{`{^name, ^body}` or `{^body}` and name is null} =
       tests
 
 
-assert{`{^expr}` or expr} =
-   [@] = this
-   glob = #variable{.___grey_mocha}
+makro{AssertionError} assert{`{^expr}` or expr} =
+   ae = @deps.AssertionError
    if @context == #expr{.multi}:
       return #nostep{@form}
    {=> res, => decls, => body, => important, => other} =
       decompose{@, @expand{@context, expr}}
    ```
-   globals: ___grey_mocha
    ^*decls
    ^body
    match ^res:
       true? ->
          undefined
       else ->
-         throw [^glob].AssertionError{{^*important, ^*other}}
+         throw [^ae]{{^*important, ^*other}}
    ```
 
-expect{`{^pattern, ^expr}`} =
-   [@] = this
-   glob = #variable{.___grey_mocha}
+makro{ExpectationError} expect{`{^pattern, ^expr}`} =
    if @context == #expr{.multi}:
       return #nostep{@form}
    {=> res, => decls, => body, => important, => other} =
       decompose{@, @expand{@context, expr}}
    ```
-   globals: ___grey_mocha
    ^*decls
    match ^body:
       ^pattern ->
          undefined
       else ->
-         throw [^glob].ExpectationError{^=gettext{pattern}, {^*important, ^*other}}
+         throw [^ @deps.ExpectationError]{^=gettext{pattern}, {^*important, ^*other}}
    ```
 
-expectError{`{^pattern, ^expr}`} =
-   [@] = this
-   glob = #variable{.___grey_mocha}
+makro{ExpectationErrorE} expectError{`{^pattern, ^expr}`} =
    if @context == #expr{.multi}:
       return #nostep{@form}
    {=> res, => decls, => body, => important, => other} =
       decompose{@, @expand{@context, expr}}
    ```
-   globals: ___grey_mocha
    ^*decls
    var ok = false
    try:
@@ -215,19 +207,7 @@ expectError{`{^pattern, ^expr}`} =
    catch ^pattern:
       ok = true
    catch e:
-      throw [^glob].ExpectationErrorE{e, ^=gettext{pattern}, {^*important, ^*other}}
+      throw [^ @deps.ExpectationErrorE]{e, ^=gettext{pattern}, {^*important, ^*other}}
    if not ok:
-      throw [^glob].ExpectationErrorE{null, ^=gettext{pattern}, {^*important, ^*other}}
+      throw [^ @deps.ExpectationErrorE]{null, ^=gettext{pattern}, {^*important, ^*other}}
    ```
-
-
-
-globals:
-   ___grey_mocha
-
-global.___grey_mocha = {
-   = AssertionError
-   = ExpectationError
-   = ExpectationErrorE
-}
-
