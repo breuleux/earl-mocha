@@ -1,5 +1,5 @@
 {
-  "name": "grey-mocha",
+  "name": "earl-mocha",
   "version": "0.0.1",
   "description": "Earl Grey macros wrapping Mocha tests",
   "main": "lib/index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/breuleux/grey-mocha"
+    "url": "https://github.com/breuleux/earl-mocha"
   },
   "keywords": [
     "Earl Grey",
@@ -18,7 +18,7 @@
   "author": "Olivier Breuleux",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/breuleux/grey-mocha/issues"
+    "url": "https://github.com/breuleux/earl-mocha/issues"
   },
-  "homepage": "https://github.com/breuleux/grey-mocha"
+  "homepage": "https://github.com/breuleux/earl-mocha"
 }
