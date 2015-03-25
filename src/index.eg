@@ -24,30 +24,30 @@ standard{info, #variable! name, descr, body} =
       ^body
    ```
 
-describe{`{^descr, ^body}`} =
-   standard{this, .describe, descr, body}
+macro describe{`{^descr, ^body}`} =
+   standard{@, .describe, descr, body}
 
-it{`{^descr, ^body}`} =
-   standard{this, .it, descr, body}
+macro it{`{^descr, ^body}`} =
+   standard{@, .it, descr, body}
 
-before{`{^body}`} =
-   standard{this, .before, null, body}
+macro before{`{^body}`} =
+   standard{@, .before, null, body}
 
-after{`{^body}`} =
-   standard{this, .after, null, body}
+macro after{`{^body}`} =
+   standard{@, .after, null, body}
 
-beforeEach{`{^body}`} =
-   standard{this, .beforeEach, null, body}
+macro beforeEach{`{^body}`} =
+   standard{@, .beforeEach, null, body}
 
-afterEach{`{^body}`} =
-   standard{this, .afterEach, null, body}
+macro afterEach{`{^body}`} =
+   standard{@, .afterEach, null, body}
 
 
-xdescribe{`{^descr, ^body}`} =
-   standard{this, .xdescribe, descr, body}
+macro xdescribe{`{^descr, ^body}`} =
+   standard{@, .xdescribe, descr, body}
 
-xit{`{^descr, ^body}`} =
-   standard{this, .xit, descr, body}
+macro xit{`{^descr, ^body}`} =
+   standard{@, .xit, descr, body}
 
 
 
@@ -149,22 +149,21 @@ decompose{@, expr} =
    {= res, = decls, = body, = important, = other}
 
 
-asserts{`{^name, ^body}` or `{^body}` and name is null} =
-   self = this
+macro asserts{`{^name, ^body}` or `{^body}` and name is null} =
    #multi! #multi{*stmts} = body
-   let {it, describe, assert} = this.mark{`it`, `describe`, `assert`}
+   let {it, describe, assert} = @mark{`it`, `describe`, `assert`}
    tests = #multi{*___} with stmts each
       `^label => ^stmt` ->
          `[^it] [^label]: ^assert ^stmt`
       stmt ->
-         `[^it] [^=self.gettext{stmt}]: ^assert ^stmt`
+         `[^it] [^= @gettext{stmt}]: ^assert ^stmt`
    if name:
       `[^describe]{^name, ^tests}`
    else:
       tests
 
 
-makro{AssertionError} assert{`{^expr}` or expr} =
+macro{AssertionError} assert{`{^expr}` or expr} =
    ae = @deps.AssertionError
    if @context == #expr{.multi}:
       return #nostep{@form}
@@ -180,7 +179,7 @@ makro{AssertionError} assert{`{^expr}` or expr} =
          throw [^ae]{{^*important, ^*other}}
    ```
 
-makro{ExpectationError} expect{`{^pattern, ^expr}`} =
+macro{ExpectationError} expect{`{^pattern, ^expr}`} =
    if @context == #expr{.multi}:
       return #nostep{@form}
    {=> res, => decls, => body, => important, => other} =
@@ -194,7 +193,7 @@ makro{ExpectationError} expect{`{^pattern, ^expr}`} =
          throw [^ @deps.ExpectationError]{^=gettext{pattern}, {^*important, ^*other}}
    ```
 
-makro{ExpectationErrorE} expectError{`{^pattern, ^expr}`} =
+macro{ExpectationErrorE} expectError{`{^pattern, ^expr}`} =
    if @context == #expr{.multi}:
       return #nostep{@form}
    {=> res, => decls, => body, => important, => other} =
