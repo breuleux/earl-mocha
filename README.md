@@ -17,7 +17,7 @@ Usage:
           @two = 2
        it "is fun!":
           assert @one + @one == @two
-       it "is dangerous!"
-          expect-error [Error?]:
+       it "is dangerous!":
+          expect-error [TypeError?]:
              null.forbidden-field
 
