@@ -193,20 +193,22 @@ macro{ExpectationError} expect{`{^pattern, ^expr}`} =
          throw [^ @deps.ExpectationError]{^=gettext{pattern}, {^*important, ^*other}}
    ```
 
-macro{ExpectationErrorE} expectError{`{^pattern, ^expr}`} =
-   if @context == #expr{.multi}:
-      return #nostep{@form}
-   {=> res, => decls, => body, => important, => other} =
-      decompose{@, @expand{@context, expr}}
-   ```
-   ^*decls
-   var ok = false
-   try:
-      ^body
-   catch ^pattern:
-      ok = true
-   catch e:
-      throw [^ @deps.ExpectationErrorE]{e, ^=gettext{pattern}, {^*important, ^*other}}
-   if not ok:
-      throw [^ @deps.ExpectationErrorE]{null, ^=gettext{pattern}, {^*important, ^*other}}
-   ```
+macro{ExpectationErrorE} expect-error{match} =
+   `{^pattern, ^expr}` or `{^expr}` and pattern is `Error` ->
+      patt = match pattern:
+         `[^x]?` -> pattern
+         else -> `[^pattern]?`
+      if @context == #expr{.multi}:
+         return #nostep{@form}
+
+      ```
+      var ok = false
+      try:
+         rval = ^expr
+      catch ^patt:
+         ok = true
+      catch e:
+         throw [^ @deps.ExpectationErrorE]{e, ^=gettext{pattern}, {{^=gettext{expr}, rval}}}
+      if not ok:
+         throw [^ @deps.ExpectationErrorE]{null, ^=gettext{pattern}, {{^=gettext{expr}, rval}}}
+      ```
