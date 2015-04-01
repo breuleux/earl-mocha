@@ -18,6 +18,6 @@ Usage:
        it "is fun!":
           assert @one + @one == @two
        it "is dangerous!":
-          expect-error [TypeError?]:
+          expect-error TypeError:
              null.forbidden-field
 
