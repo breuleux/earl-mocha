@@ -124,7 +124,7 @@ decompose{@, expr} =
       #send{fn, #array{*args}} ->
          temp = mktemp{}
          dispatch{x, temp, importance > 0}
-         body.push with `set ^temp = ^[#send{fn2, #data{*args2}}]` where
+         body.push with `set-var ^temp = ^[#send{fn2, #data{*args2}}]` where
             fn2 = #final{fn} ;;helper{fn, importance - 1, true}
             args2 = args each arg -> helper{arg, importance - 1}
          temp
@@ -132,7 +132,7 @@ decompose{@, expr} =
       #send{fn, arg} ->
          temp = mktemp{}
          dispatch{x, temp, importance > 0}
-         body.push with `set ^temp = ^[#send{fn2, arg2}]` where
+         body.push with `set-var ^temp = ^[#send{fn2, arg2}]` where
             fn2 = #final{fn} ;;helper{fn, importance - 1}
             arg2 = helper{arg, importance - 1}
          temp
@@ -143,7 +143,7 @@ decompose{@, expr} =
       else ->
          temp = mktemp{}
          dispatch{x, temp, importance > 0}
-         body.push with `set ^temp = ^[#final{x}]`
+         body.push with `set-var ^temp = ^[#final{x}]`
          temp
 
    {= res, = decls, = body, = important, = other}
