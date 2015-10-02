@@ -1,6 +1,6 @@
 {
   "name": "earl-mocha",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Earl Grey macros wrapping Mocha tests",
   "main": "lib/index.js",
   "dependencies": {
@@ -22,7 +22,8 @@
   "keywords": [
     "earlgrey",
     "earlgrey-macros",
-    "test", "testing",
+    "test",
+    "testing",
     "mocha"
   ],
   "author": "Olivier Breuleux",
