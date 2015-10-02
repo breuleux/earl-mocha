@@ -4,13 +4,15 @@
   "description": "Earl Grey macros wrapping Mocha tests",
   "main": "lib/index.js",
   "dependencies": {
-    "earlgrey-runtime": ">=0.0.7"
+    "earlgrey-runtime": ">=0.0.11"
   },
   "devDependencies": {
-    "earlgrey": ">=0.0.2"
+    "earlgrey": ">=0.0.13"
   },
   "scripts": {
-    "prepublish": "earl compile -5rvso lib/ src/",
+    "refresh": "earl compile -5vso lib/ src/",
+    "compile": "earl compile -5rvso lib/ src/",
+    "prepublish": "npm run compile",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,9 +20,10 @@
     "url": "https://github.com/breuleux/earl-mocha"
   },
   "keywords": [
-    "Earl Grey",
-    "Test",
-    "Mocha"
+    "earlgrey",
+    "earlgrey-macros",
+    "test", "testing",
+    "mocha"
   ],
   "author": "Olivier Breuleux",
   "license": "MIT",
