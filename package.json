@@ -1,6 +1,6 @@
 {
   "name": "earl-mocha",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Earl Grey macros wrapping Mocha tests",
   "main": "lib/index.js",
   "dependencies": {
